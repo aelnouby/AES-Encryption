@@ -37,6 +37,7 @@ byte subBytes(byte t);
 void shiftRows(byte roudnInput[16],byte rslt[16]);
 byte GfMul(byte a , byte b);
 void addRoundKey(byte roundInput[16],byte roundKey[16],byte rslt[16]);
+void readInput(byte plainText[16],byte key[16],bool v);
 void visualize(string s, int roundNumber,byte v[16]);
 //=============================================
 //Implementations
@@ -164,9 +165,6 @@ int main(){
     byte key[16]; byte plainText[16]; bool v=false;
     readInput(plainText,key,v);
 
-//    byte key[16]={0x54,0x68,0x61,0x74,0x73,0x20,0x6d,0x79,0x20,0x4b,0x75,0x6e,0x67,0x20,0x46,0x75};
-//    byte plainText[16]={0x54,0x77,0x6f,0x20,0x4f,0x6e,0x65,0x20,0x4e,0x69,0x6e,0x65,0x20,0x54,0x77,0x6f};
-
     WORD roundKeys[44];
     keyExpand(key,roundKeys);
     WORD round_0_WORD[4]={roundKeys[0],roundKeys[1],roundKeys[2],roundKeys[3]};
@@ -223,7 +221,7 @@ int main(){
     if(v) visualize("Final Output",10,c);
 
     cout<<"Cipher Text: ";
-    for (int i = 0; i < 16; ++i) cout<<hex<<c[i];
+    for (int i = 0; i < 16; ++i) cout<<setfill('0')<<setw(2)<<hex<<c[i];
     cout<<endl;
     return 0;
 }
