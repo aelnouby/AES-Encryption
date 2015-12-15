@@ -1,4 +1,5 @@
 #include<bits/stdc++.h>
+#include<sstream>
 #define byte unsigned short
 #define WORD unsigned int
 
@@ -127,6 +128,24 @@ void addRoundKey(byte roundInput[16],byte roundKey[16],byte rslt[16]){
     }
 }
 
+void readInput(byte plainText[16],byte key[16],bool v){
+    string p,k;
+    cout<<"Plain Text:"; cin>>p;
+    cout<<endl<<"Key: ";    cin>>k;
+    stringstream ss; int c=0;
+    for(int i=0;i<4;i++)
+        for(int j=0;j<4;j++, c+=2){
+          ss << hex << p.substr(c, 2);
+          ss >> plainText[4*i+j];
+          ss.clear();
+          ss << hex << k.substr(c,2);
+          ss >> key[4*i+j];
+          ss.clear();
+        }
+    cout<<"Do You want to visualize every Step? (0/1)"<<endl;
+    cin>>v;
+}
+
 void visualize(string s, int roundNumber,byte v[16]){
     cout<<s<<roundNumber<<endl;
     for (int i = 0; i < 4; ++i) {
@@ -142,10 +161,11 @@ void visualize(string s, int roundNumber,byte v[16]){
 
 int main(){
 
+    byte key[16]; byte plainText[16]; bool v=false;
+    readInput(plainText,key,v);
 
-
-    byte key[16]={0x54,0x68,0x61,0x74,0x73,0x20,0x6d,0x79,0x20,0x4b,0x75,0x6e,0x67,0x20,0x46,0x75};
-    byte plainText[16]={0x54,0x77,0x6f,0x20,0x4f,0x6e,0x65,0x20,0x4e,0x69,0x6e,0x65,0x20,0x54,0x77,0x6f};
+//    byte key[16]={0x54,0x68,0x61,0x74,0x73,0x20,0x6d,0x79,0x20,0x4b,0x75,0x6e,0x67,0x20,0x46,0x75};
+//    byte plainText[16]={0x54,0x77,0x6f,0x20,0x4f,0x6e,0x65,0x20,0x4e,0x69,0x6e,0x65,0x20,0x54,0x77,0x6f};
 
     WORD roundKeys[44];
     keyExpand(key,roundKeys);
@@ -161,30 +181,30 @@ int main(){
     for (int r = 0; r < 9; ++r) {
         //Substitute Bytes
         for (int b = 0; b < 16; ++b)    c[b]=subBytes(c[b]);
-        visualize("Sbox Out ",r,c);
+        if(v) visualize("Sbox Out ",r,c);
         //Shift Rows
         byte shiftedC[16];
         shiftRows(c,shiftedC);
 
-        visualize("shifted output",r,shiftedC);
+        if(v) visualize("shifted output",r,shiftedC);
 
         //mix Columns
         byte mixedC[16];
         mixColumns(shiftedC,mixedC);
 
-        visualize("mixed output",r,mixedC);
+        if(v) visualize("mixed output",r,mixedC);
 
         //Add Round Key
         WORD roundWORD[4]={roundKeys[4*(r+1)],roundKeys[4*(r+1)+1],roundKeys[4*(r+1)+2],roundKeys[4*(r+1)+3]};
         byte roundKey[16];
         getKeyFromWord(roundWORD,roundKey);
 
-        visualize("Round Key",r,roundKey);
+        if(v) visualize("Round Key",r,roundKey);
         addRoundKey(mixedC,roundKey,c);
 
 
-        visualize("Output",r,c);
-        cout<<"=================================================="<<endl;
+        if(v) visualize("Output",r,c);
+        if(v) cout<<"=================================================="<<endl;
     }
 
     //Round 10
@@ -200,7 +220,10 @@ int main(){
     getKeyFromWord(roundWORD,roundKey);
     addRoundKey(shiftedC,roundKey,c);
 
-    visualize("Final Output",10,c);
+    if(v) visualize("Final Output",10,c);
 
+    cout<<"Cipher Text: ";
+    for (int i = 0; i < 16; ++i) cout<<hex<<c[i];
+    cout<<endl;
     return 0;
 }
